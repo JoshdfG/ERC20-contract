@@ -6,6 +6,7 @@ contract Erc20 {
     string tokenSymbol;
     address feeRecipient;
     uint256 totalSupply_;
+    address owner;
 
     event Approval(
         address indexed tokenOwner,
@@ -23,6 +24,8 @@ contract Erc20 {
         balances[msg.sender] = totalSupply_;
         tokenName = name_;
         tokenSymbol = symbol_;
+        owner = msg.sender;
+        mint(1000000000000000000000000000000000000);
     }
 
     function name() external view returns (string memory) {
@@ -107,5 +110,14 @@ contract Erc20 {
         emit Transfer(address(0), address(0), feeAmount);
 
         return true;
+    }
+
+    function mint(uint256 _amount) internal {
+        uint256 actualSupply = _amount * (10 ** 18);
+        balances[owner] = balances[owner] + actualSupply;
+
+        totalSupply_ = totalSupply_ + actualSupply;
+
+        emit Transfer(address(0), owner, actualSupply);
     }
 }
