@@ -4,6 +4,7 @@ pragma solidity ^0.8.2;
 contract Erc20 {
     string tokenName;
     string tokenSymbol;
+    address feeRecipient;
     uint256 totalSupply_;
 
     event Approval(
@@ -98,14 +99,11 @@ contract Erc20 {
 
         require(netAmount > 0, "Transfer amount too small");
 
-        balances[_owner] -= _numTokens;
-        allowed[_owner][msg.sender] -= _numTokens;
+        balances[_owner] -= netAmount;
         balances[_buyer] += netAmount;
-        balances[address(0)] += feeAmount;
-        totalSupply_ = totalSupply_ - feeAmount;
         emit Transfer(_owner, _buyer, netAmount);
-        balances[msg.sender] = balances[msg.sender] - feeAmount;
-
+        balances[_owner] = balances[_owner] - feeAmount;
+        totalSupply_ = balances[_owner];
         emit Transfer(address(0), address(0), feeAmount);
 
         return true;
