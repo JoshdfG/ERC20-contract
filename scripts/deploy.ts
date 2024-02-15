@@ -2,8 +2,8 @@ import { ethers } from "hardhat";
 
 async function main() {
   const totalSupply = 1000000;
-  const name = "MyToken";
-  const symbol = "MT";
+  const name = "Z_Breed";
+  const symbol = "ZB";
 
   const ercToken = await ethers.deployContract("Erc20", [
     totalSupply,
