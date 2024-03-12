@@ -19,13 +19,12 @@ contract Erc20 {
 
     mapping(address => mapping(address => uint256)) allowed;
 
-    constructor(uint256 total, string memory name_, string memory symbol_) {
-        totalSupply_ = total;
+    constructor(string memory name_, string memory symbol_) {
         balances[msg.sender] = totalSupply_;
         tokenName = name_;
         tokenSymbol = symbol_;
         owner = msg.sender;
-        mint(1000000000000000000000000000000000000);
+        mint(owner, 1000 * (10 ** uint(decimal())));
     }
 
     function name() external view returns (string memory) {
@@ -36,7 +35,7 @@ contract Erc20 {
         return tokenSymbol;
     }
 
-    function decimal() external pure returns (uint) {
+    function decimal() public pure returns (uint8) {
         return 18;
     }
 
@@ -59,8 +58,8 @@ contract Erc20 {
 
         require(_netAmount > 0, "Transfer amount too small");
 
-        balances[msg.sender] -= _tokens;
-        totalSupply_ -= _tokens;
+        balances[msg.sender] = balances[msg.sender] - _tokens;
+        totalSupply_ = totalSupply_ - _tokens;
         balances[to] += _netAmount;
         balances[address(0)] += _feeAmount;
         totalSupply_ = totalSupply_ - _feeAmount;
@@ -112,12 +111,21 @@ contract Erc20 {
         return true;
     }
 
-    function mint(uint256 _amount) internal {
+    function burn(address _address, uint256 _amount) internal {
+        balances[_address] = balances[_address] - _amount;
+        totalSupply_ = totalSupply_ - _amount;
+
+        emit Transfer(_address, address(0), _amount);
+    }
+
+    //method called in the constructor
+    function mint(address to, uint256 _amount) internal {
         uint256 actualSupply = _amount * (10 ** 18);
-        balances[owner] = balances[owner] + actualSupply;
+
+        balances[to] = balances[to] + actualSupply;
 
         totalSupply_ = totalSupply_ + actualSupply;
 
-        emit Transfer(address(0), owner, actualSupply);
+        emit Transfer(address(0), to, actualSupply);
     }
 }
